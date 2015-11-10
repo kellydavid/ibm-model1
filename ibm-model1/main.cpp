@@ -38,6 +38,8 @@ using namespace std;
 #define D_SIZE 2
 
 
+#define PRINT_EXPECTATION_TABLE
+
 vector<string> VS(VS_SIZE); // S vocab: VS[x] gives Src word coded by x
 vector<string> VO(VO_SIZE); // O vocab: VO[x] gives Obs word coded by x
 
@@ -85,30 +87,46 @@ int main() {
 void ibm_model1_em(){
     // initialise counts to 0
     vector<vector<float>> count;
-    count.resize(VS_SIZE);
-    for(int i = 0; i < VS_SIZE; i++){
-        count[i].resize(VO_SIZE);
-        for(int j = 0; j < VO_SIZE; j++){
+    count.resize(VO_SIZE);
+    for(int i = 0; i < count.size(); i++){
+        count[i].resize(VS_SIZE);
+        for(int j = 0; j < count[i].size(); j++){
             count[i][j] = 0;
         }
     }
     
     // E
     for(int k = 0; k < D_SIZE; k++){ // for each sentence pair in corpus
-        for(int j = 0; j < O[k].size(); j++){ // for each oj
+        for(int j = 0; j < O[k].size(); j++){ // for each oj in sentence
             int o_word = O[k][j];
             // calculate denominator
             float denom = 0.0;
             for(int idenom = 0; idenom < S[k].size(); idenom++){
                 denom += tr_table[o_word][S[k][idenom]];
             }
-            for(int i = 0; i < S[k].size(); i++){
+            for(int i = 0; i < S[k].size(); i++){ // for each si in sentence
                 int s_word = S[k][i];
                 float numer = tr_table[o_word][s_word];
                 count[o_word][s_word] = numer / denom;
             }
         }
     }
+#ifdef PRINT_EXPECTATION_TABLE
+    // print head row
+    cout << "E(o|s)";
+    for(int i = 0; i < count.size(); i++){
+        cout << " || " << i;
+    }
+    cout << endl << "------------------------" << endl;
+    // print each row
+    for(int i = 0; i < count.size(); i++){
+        cout << "   " << i << "   ";
+        for(int j = 0; j < count[i].size(); j++){
+            cout << " || " << count[i][j];
+        }
+        cout << endl;
+    }
+#endif
     
     // M
     for(int i = 0; i < VS_SIZE; i++){ // for each s in Vs
@@ -144,12 +162,13 @@ void print_translation_probability(){
 void init_translation_probability(){
     int total_size = VS_SIZE * VO_SIZE;
     // create rows
-    tr_table.resize(VS_SIZE);
+    tr_table.resize(VO_SIZE);
     for(int i = 0; i < tr_table.size(); i++){
         // create cols
-        tr_table[i].resize(VO_SIZE);
+        tr_table[i].resize(VS_SIZE);
         for(int j = 0; j < tr_table[i].size(); j++){
             tr_table[i][j] = (1 / (float)total_size); // initialise with uniform probabilities
+            tr_table[i][j] = 1.0 / 3.0;
         }
     }
 }
