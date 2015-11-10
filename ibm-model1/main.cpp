@@ -58,7 +58,11 @@ void init_translation_probability();
 // prints the table of translation probabilities
 void print_translation_probability();
 
+// the actual logic of the ibm model 1 algorithm
 void ibm_model1_em();
+
+// prints the pairs of words and their probability
+void print_pairs_tr_prob();
 
 // functions which use VS and VO to 'decode' the int vecs representing the
 // Src and Obs sequences
@@ -73,19 +77,29 @@ int main() {
     // you may well though want to set up further global data structures
     // and functions which access them
     
-    cout << endl << "Initialised tr(o|s): " << endl;
+    cout << endl << "Initialised tr(o|s) with uniform values: " << endl;
     init_translation_probability();
-    print_translation_probability();
+    print_pairs_tr_prob();
     cout << endl;
+    
     
     for(int i = 0; i < EM_ITERATIONS; i++){
         cout << "EM Iteration #" << i << ": " << endl;
         ibm_model1_em();
-        print_translation_probability();
+        cout << "tr(o|s):" << endl;
+        print_pairs_tr_prob();
         cout << endl;
     }
     
     return 0;
+}
+
+void print_pairs_tr_prob(){
+    for(int i = 0; i < tr_table.size(); i++){
+        for(int j = 0; j < tr_table[i].size(); j++){
+            cout << VO[j] << " \t\t " << VS[i] << "\t\t\t" << tr_table[j][i] << endl;
+        }
+    }
 }
 
 void ibm_model1_em(){
@@ -118,19 +132,11 @@ void ibm_model1_em(){
     }
     
 #ifdef PRINT_EXPECTATION_TABLE
-    // print head row
-    cout << "E(o|s)";
+    cout << "Unnormalised counts E(o|s): " << endl;
     for(int i = 0; i < count.size(); i++){
-        cout << " || " << i;
-    }
-    cout << endl << "------------------------" << endl;
-    // print each row
-    for(int i = 0; i < count.size(); i++){
-        cout << "   " << i << "   ";
         for(int j = 0; j < count[i].size(); j++){
-            cout << " || " << count[i][j];
+            cout << VO[j] << " \t\t" << VS[i] << "\t\t\t" << count[j][i] << endl;
         }
-        cout << endl;
     }
     cout << endl;
 #endif
@@ -175,7 +181,6 @@ void init_translation_probability(){
         tr_table[i].resize(VS_SIZE);
         for(int j = 0; j < tr_table[i].size(); j++){
             tr_table[i][j] = (1 / (float)total_size); // initialise with uniform probabilities
-            tr_table[i][j] = 1.0 / 3.0;
         }
     }
 }
