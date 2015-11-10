@@ -37,7 +37,7 @@ using namespace std;
 #define VO_SIZE 3
 #define D_SIZE 2
 
-
+#define EM_ITERATIONS 3
 #define PRINT_EXPECTATION_TABLE
 
 vector<string> VS(VS_SIZE); // S vocab: VS[x] gives Src word coded by x
@@ -73,13 +73,17 @@ int main() {
     // you may well though want to set up further global data structures
     // and functions which access them
     
+    cout << endl << "Initialised tr(o|s): " << endl;
     init_translation_probability();
-    
     print_translation_probability();
+    cout << endl;
     
-    ibm_model1_em();
-    
-    print_translation_probability();
+    for(int i = 0; i < EM_ITERATIONS; i++){
+        cout << "EM Iteration #" << i << ": " << endl;
+        ibm_model1_em();
+        print_translation_probability();
+        cout << endl;
+    }
     
     return 0;
 }
@@ -97,20 +101,22 @@ void ibm_model1_em(){
     
     // E
     for(int k = 0; k < D_SIZE; k++){ // for each sentence pair in corpus
-        for(int j = 0; j < O[k].size(); j++){ // for each oj in sentence
+        for(int j = 0; j < O[k].size(); j++){ // for each o[j] in sentence
             int o_word = O[k][j];
             // calculate denominator
             float denom = 0.0;
             for(int idenom = 0; idenom < S[k].size(); idenom++){
                 denom += tr_table[o_word][S[k][idenom]];
             }
-            for(int i = 0; i < S[k].size(); i++){ // for each si in sentence
+            for(int i = 0; i < S[k].size(); i++){ // for each s[i] in sentence
                 int s_word = S[k][i];
+                // calculate numerator
                 float numer = tr_table[o_word][s_word];
-                count[o_word][s_word] += numer / denom;
+                count[o_word][s_word] += numer / denom; // count[o][s] += P((j, i)|o, s)
             }
         }
     }
+    
 #ifdef PRINT_EXPECTATION_TABLE
     // print head row
     cout << "E(o|s)";
@@ -126,6 +132,7 @@ void ibm_model1_em(){
         }
         cout << endl;
     }
+    cout << endl;
 #endif
     
     // M
