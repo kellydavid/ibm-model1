@@ -71,6 +71,20 @@ int main() {
     // you may well though want to set up further global data structures
     // and functions which access them
     
+    // print source words
+    cout << "Source Words: " << endl;
+    for(int i = 0; i < VS.size(); i++){
+        cout << VS[i] << ", ";
+    }
+    cout << endl;
+    
+    // print observed words
+    cout << "Observed Words: " << endl;
+    for(int i = 0; i < VO.size(); i++){
+        cout << VO[i] << ", ";
+    }
+    cout << endl;
+    
     init_translation_probability();
     
     print_translation_probability();
