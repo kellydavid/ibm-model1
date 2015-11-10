@@ -107,7 +107,7 @@ void ibm_model1_em(){
             for(int i = 0; i < S[k].size(); i++){ // for each si in sentence
                 int s_word = S[k][i];
                 float numer = tr_table[o_word][s_word];
-                count[o_word][s_word] = numer / denom;
+                count[o_word][s_word] += numer / denom;
             }
         }
     }
