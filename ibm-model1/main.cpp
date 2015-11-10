@@ -73,16 +73,13 @@ void show_S(int d);
 int main() {
     create_vocab_and_data();
     
-    // guts of it to go here
-    // you may well though want to set up further global data structures
-    // and functions which access them
-    
+    // Initialise tr_table with uniform values
     cout << endl << "Initialised tr(o|s) with uniform values: " << endl;
     init_translation_probability();
     print_pairs_tr_prob();
     cout << endl;
     
-    
+    // perform a number of EM iterations, printing the values each time
     for(int i = 0; i < EM_ITERATIONS; i++){
         cout << "EM Iteration #" << i << ": " << endl;
         ibm_model1_em();
@@ -149,6 +146,7 @@ void ibm_model1_em(){
             denom += count[idenom][i];
         }
         for(int j = 0; j < VO_SIZE; j++){
+            // calculate numerator
             float numer = count[j][i];
             tr_table[j][i] = numer / denom;
         }
