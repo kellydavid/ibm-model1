@@ -44,9 +44,17 @@ vector<string> VO(VO_SIZE); // O vocab: VO[x] gives Obs word coded by x
 vector<vector<int> > S(D_SIZE); // all S sequences; in this case 2
 vector<vector<int> > O(D_SIZE); // all O sequences; in this case 2
 
+vector<vector<float>> tr_table; // tr(o|s)
+
 // sets S[0] and S[1] to be the int vecs representing the S sequences
 // sets O[0] and O[1] to be the int vecs representing the O sequences
 void create_vocab_and_data();
+
+// initialises the tr_table with uniform probabilities
+void init_translation_probability();
+
+// prints the table of translation probabilities
+void print_translation_probability();
 
 // functions which use VS and VO to 'decode' the int vecs representing the
 // Src and Obs sequences
@@ -61,7 +69,41 @@ int main() {
     // you may well though want to set up further global data structures
     // and functions which access them
     
+    init_translation_probability();
+    
+    print_translation_probability();
+    
     return 0;
+}
+
+void print_translation_probability(){
+    // print head row
+    cout << "tr(o|s)";
+    for(int i = 0; i < VS_SIZE; i++){
+        cout << " || " << i;
+    }
+    cout << endl << "------------------------" << endl;
+    // print each row
+    for(int i = 0; i < VS_SIZE; i++){
+        cout << "   " << i << "   ";
+        for(int j = 0; j < VO_SIZE; j++){
+            cout << " || " << tr_table[i][j];
+        }
+        cout << endl;
+    }
+}
+
+void init_translation_probability(){
+    int total_size = VS_SIZE * VO_SIZE;
+    // create rows
+    tr_table.resize(VS_SIZE);
+    for(int i = 0; i < tr_table.size(); i++){
+        // create cols
+        tr_table[i].resize(VO_SIZE);
+        for(int j = 0; j < tr_table[i].size(); j++){
+            tr_table[i][j] = (1 / (float)total_size); // initialise with uniform probabilities
+        }
+    }
 }
 
 void create_vocab_and_data() {
