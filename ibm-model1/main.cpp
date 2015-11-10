@@ -97,7 +97,7 @@ int main() {
 void print_pairs_tr_prob(){
     for(int i = 0; i < tr_table.size(); i++){
         for(int j = 0; j < tr_table[i].size(); j++){
-            cout << VO[j] << " \t\t " << VS[i] << "\t\t\t" << tr_table[j][i] << endl;
+            printf("%s \t %s \t %f \n", VO[j].c_str(), VS[i].c_str(), tr_table[j][i]);
         }
     }
 }
@@ -135,7 +135,7 @@ void ibm_model1_em(){
     cout << "Unnormalised counts E(o|s): " << endl;
     for(int i = 0; i < count.size(); i++){
         for(int j = 0; j < count[i].size(); j++){
-            cout << VO[j] << " \t\t" << VS[i] << "\t\t\t" << count[j][i] << endl;
+            printf("%s \t %s \t %f \n", VO[j].c_str(), VS[i].c_str(), count[j][i]);
         }
     }
     cout << endl;
