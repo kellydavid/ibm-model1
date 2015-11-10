@@ -56,6 +56,8 @@ void init_translation_probability();
 // prints the table of translation probabilities
 void print_translation_probability();
 
+void ibm_model1_em();
+
 // functions which use VS and VO to 'decode' the int vecs representing the
 // Src and Obs sequences
 void show_pair(int d);
@@ -73,7 +75,53 @@ int main() {
     
     print_translation_probability();
     
+    ibm_model1_em();
+    
+    print_translation_probability();
+    
     return 0;
+}
+
+void ibm_model1_em(){
+    // initialise counts to 0
+    vector<vector<float>> count;
+    count.resize(VS_SIZE);
+    for(int i = 0; i < VS_SIZE; i++){
+        count[i].resize(VO_SIZE);
+        for(int j = 0; j < VO_SIZE; j++){
+            count[i][j] = 0;
+        }
+    }
+    
+    // E
+    for(int k = 0; k < D_SIZE; k++){ // for each sentence pair in corpus
+        for(int j = 0; j < O[k].size(); j++){ // for each oj
+            int o_word = O[k][j];
+            // calculate denominator
+            float denom = 0.0;
+            for(int idenom = 0; idenom < S[k].size(); idenom++){
+                denom += tr_table[o_word][S[k][idenom]];
+            }
+            for(int i = 0; i < S[k].size(); i++){
+                int s_word = S[k][i];
+                float numer = tr_table[o_word][s_word];
+                count[o_word][s_word] = numer / denom;
+            }
+        }
+    }
+    
+    // M
+    for(int i = 0; i < VS_SIZE; i++){ // for each s in Vs
+        // calculate denominator
+        float denom = 0.0;
+        for(int idenom = 0; idenom < VO_SIZE; idenom++){ // Sum for each #(o[idenom], s[i])
+            denom += count[idenom][i];
+        }
+        for(int j = 0; j < VO_SIZE; j++){
+            float numer = count[j][i];
+            tr_table[j][i] = numer / denom;
+        }
+    }
 }
 
 void print_translation_probability(){
